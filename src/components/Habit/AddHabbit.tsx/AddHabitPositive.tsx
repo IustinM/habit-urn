@@ -1,110 +1,86 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material'
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { setInputNumericValue } from './utils/functions';
+import { Box, Button,  TextField, Typography } from '@mui/material'
+import React, { ChangeEvent, SetStateAction, useEffect, useState } from 'react'
+import { PositiveMeasure } from '../../utils/types';
+import ErrorText from './utils/ErrorText';
+import { checkNumber } from './utils/functions';
 import SubTitle from './utils/Subtitle'
 
 interface Props {
-    positiveMeasure:any,
-    setPositiveMeasure:any,
+    positiveMeasure:PositiveMeasure,
+    setPositiveMeasure:React.Dispatch<SetStateAction<PositiveMeasure>>,
+    setHabitPlace:React.Dispatch<React.SetStateAction<string>>,
+    habitPlace:string
 }
-const AddHabitPositive:React.FC<Props> = ({positiveMeasure,setPositiveMeasure}) => {
+const AddHabitPositive:React.FC<Props> = ({positiveMeasure,setPositiveMeasure,setHabitPlace,habitPlace}) => {
 
-    const [percentage,setPercentage] = useState<number>(0);
-    const [habitValue,setHabitValue] = useState<number>(0);
-    const [habitValue2,setHabitValue2] = useState<string>('');
-    const [primaryFrequency,setPrimaryFrequency] = useState<number>(0)
+    const [percentage,setPercentage] = useState<string>('');
+    const [habitValue,setHabitValue] = useState<string>('');
     const [habitResult,setHabitResult] = useState<number>(0);
-    const [habitExpectedResult,setHabitExpectedResult] = useState<number>(0)
-    const [frequency,setFrequency] = useState<number>(1);
+    const [habitExpectedResult,setHabitExpectedResult] = useState<string>('');
+    const [error,setError] = useState<boolean>(false);
 
-    const multiplyValues = (value:number,frequency:number,result:number,percentage:number) =>{
-        //view  the value times the number of days,weeks, or month
-        const multipliedValue= value * frequency;
+    const multiplyValues = (value:number,result:number,percentage:number) =>{
         //view the value added with the percentage
-        const percentageValue =multipliedValue + (multipliedValue * percentage)/100;
+        const percentageValue =value + (value * percentage)/100;
         //view how much it adds if you increase the habit value
-        const resultValue = (percentageValue * result)/multipliedValue;
-        
-        return resultValue;
+        const resultValue = (percentageValue * result)/value;
+        return parseFloat(resultValue.toFixed(2));
     }
 
     const resetValuesHandler = () =>{
-        setPercentage(0)
-        setHabitValue(0)
-        setPrimaryFrequency(0)
+        setPercentage('')
+        setHabitValue('')
         setHabitResult(0)
-        setHabitExpectedResult(0)
-        setFrequency(1)
-    }
-    
-    const refactorValueAfterFrequency = () =>{
-
-        const multipliedValue= habitValue * primaryFrequency;
-        const newMultipliedValue = habitValue * frequency;
-
-
-        const resultValue =  (newMultipliedValue * habitExpectedResult)/multipliedValue;
-        console.log(primaryFrequency,frequency)
-        if(primaryFrequency < frequency){
-            console.log(resultValue + habitExpectedResult)
-        }else{
-            console.log('here')
-            console.log(resultValue,habitExpectedResult)
-            console.log(resultValue - habitExpectedResult)
-        }
+        setHabitExpectedResult('')
     }
 
     const setHabitResultHandler = () =>{
 
-        setPrimaryFrequency(frequency);
-        setHabitResult(multiplyValues(habitValue,frequency,habitExpectedResult,percentage));
+        if(checkNumber(habitValue) && checkNumber(percentage)&& checkNumber(habitExpectedResult)){
+            setError(false)
+
+            setHabitResult(multiplyValues(parseFloat(habitValue),parseFloat(habitExpectedResult),parseInt(percentage)));
+        }else{
+            setError(true)
+        }
     }
 
     useEffect(()=>{
-        if(primaryFrequency > 0){
-            refactorValueAfterFrequency()
-        }
-
         setPositiveMeasure({
-            percentage:percentage,
-            habitValue:habitValue,
-            primaryFrequency:primaryFrequency,
+            percentage:parseFloat(percentage),
+            habitValue:parseFloat(habitValue),
             habitResult:habitResult,
-            habitExpectedResult:habitExpectedResult,
-            frequency:frequency
+            habitExpectedResult:parseFloat(habitExpectedResult),
         })
-    },[habitValue,frequency,percentage,habitResult,habitExpectedResult,primaryFrequency])
-    
+    },[habitValue,percentage,habitResult,habitExpectedResult]);
 
+    useEffect(() => {
+        setPercentage(`${positiveMeasure.percentage}`)
+        setHabitValue(`${positiveMeasure.habitValue}`);
+        setHabitResult(positiveMeasure.habitResult);
+        setHabitExpectedResult(`${positiveMeasure.habitExpectedResult}`);
+    },[])
+    
   return (
     <div>
-        <SubTitle text='Add a measurable numeric value of this habit' blue bold/>
-            <div style={{display:'flex',marginBottom:'2rem'}}>
-                <TextField value={positiveMeasure.habitValue || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=> setInputNumericValue(e.target.value,setHabitValue) } sx={{width:'40%'}} id="Numeric_habit_target" label="Habit value" variant="outlined" />
-                    <FormControl sx={{ width:'15%', marginLeft:'2rem', marginRight:'2rem'}}>
-                        <InputLabel id="how-often-select-label">How often</InputLabel>
-                        <Select
-                        labelId="how-often-select-label"
-                        id="how-often-select-id"
-                        value={frequency}
-                        label="How often"
-                        onChange={(e:any) => setFrequency(e.target.value)} 
-                        >
-                            <MenuItem value={30}>Daily</MenuItem>
-                            <MenuItem value={4}>Weekly</MenuItem>
-                            <MenuItem value={1}>Monthly</MenuItem>
-                        </Select>
-                    </FormControl>
-                <TextField value={habitExpectedResult || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=> setInputNumericValue(e.target.value,setHabitExpectedResult)} sx={{width:'40%'}} id="Numeric_expected_Result" label="Result value" variant="outlined" />
-            </div>
-            <SubTitle text='Add a measurable percentage to view how much your result will increase' blue bold/>
-            <div style={{display:'flex',justifyContent:'space-between'}}>
-                <TextField type='text' value={percentage || ''} sx={{width:'45%'}} onChange={(e:ChangeEvent<HTMLInputElement>)=> setInputNumericValue(e.target.value,setPercentage,true)} id="Numeric_habit_percentage" label="Percentage value" variant="outlined" />
+        {error &&  <ErrorText text='Please only add numeric values'/>}
+        <SubTitle text='Add a place where engaging in your habit becomes more enjoyable' popupText={'The specific location where we perform our daily activities can significantly impact the formation and enhancement of our habits. This concept is based on the theory that our surroundings can subtly yet powerfully influence our behavior. For example, if we want to adopt the habit of reading more, choosing a dedicated and comfortable space for reading can facilitate this habit. Adequate lighting, a comfy chair, and the absence of distractions create an environment conducive to reading, making it more likely to engage in this activity regularly'} blue bold/>
+        <Box sx={{display:'flex',justifyContent:'space-between'}}>
+            <TextField type='text' value={habitPlace || ''} sx={{width:'45%'}} onChange={(e:ChangeEvent<HTMLInputElement>)=> setHabitPlace(e.target.value)} id="place_for_habit" label="Place" variant="outlined" />
+        </Box>
+        <SubTitle text='Add a measurable numeric value of this habit' popupText='The value is standardly defined per month, that is, for example, a value of 30 km run, in a month, will produce a result of 5 kg lost' blue bold/>
+            <Box sx={{display:'flex',marginBottom:'2rem',justifyContent:'space-between'}}>
+                <TextField value={habitValue || ''}  onChange={(e:ChangeEvent<HTMLInputElement>)=> setHabitValue(e.target.value) } sx={{width:'45%'}} id="Numeric_habit_target" label="Habit value" variant="outlined" />
+                <TextField value={habitExpectedResult || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=> setHabitExpectedResult(e.target.value)} sx={{width:'45%'}} id="Numeric_expected_Result" label="Result value" variant="outlined" />
+            </Box>
+            <SubTitle text='Add a measurable percentage to view how much your result will increase' popupText='Visualizing a result after improving a habit will increase the probability that that improvement will be achieved.' blue bold/>
+            <Box sx={{display:'flex',justifyContent:'space-between'}}>
+                <TextField type='text' value={percentage || ''} sx={{width:'45%'}} onChange={(e:ChangeEvent<HTMLInputElement>)=> setPercentage(e.target.value)} id="Numeric_habit_percentage" label="Percentage value" variant="outlined" />
                 <Box  sx={{width:'45%', height:'56px',borderRadius:'0.3rem',display:'flex',alignItems:'center',paddingX:'0.7rem',border:'1px solid #6b6b6b7e'}}>
                     <Typography component={'h2'} variant={'subtitle1'}>{habitResult > 0 && habitResult}</Typography>
                 </Box>
-            </div>
-            <Button onClick={setHabitResultHandler} sx={{height:'56px', marginTop:'2rem',width:'150px',border:'2px solid'}} variant="outlined">View Result</Button>
+            </Box>
+            <Button onClick={setHabitResultHandler} sx={{height:'56px', marginTop:'2rem',width:'150px',border:'2px solid'}} variant="outlined">Set Result</Button>
             <Button onClick={resetValuesHandler} sx={{height:'56px', marginTop:'2rem',marginLeft:'2rem',width:'150px',border:'2px solid'}} variant="outlined">Reset Values</Button>
     </div>
   )

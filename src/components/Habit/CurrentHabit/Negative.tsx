@@ -1,13 +1,14 @@
 import { AccountTree, ErrorOutline, Fingerprint } from '@mui/icons-material'
 import { Typography } from '@mui/material'
 import React from 'react'
+import { Habit } from '../../utils/types'
 
 interface Props{
-    habit:any,
+    habit:Habit,
 }
 
 const Negative:React.FC<Props> = ({habit}) => {
-    console.log(habit)
+
   return (
     <div>
         <div style={{display:'flex',paddingTop:'10px',paddingBottom:'10px',alignItems:'center',borderRadius:'0.5rem',marginTop:'2rem',flexWrap:'wrap', border:'1px solid #a5a5a546' }}>
@@ -31,10 +32,10 @@ const Negative:React.FC<Props> = ({habit}) => {
 
             </div>
             <div style={{marginLeft:'1rem',marginRight:'1rem'}} >
-                <Typography sx={{fontSize:'15px',display:'flex',flexDirection:'column'}} variant="inherit" component="p"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.hint} </Typography> This is the hint that triggers you habit desire. </Typography>
-                <Typography sx={{fontSize:'15px',marginY:'0.5rem',display:'flex',flexDirection:'column'}} variant="inherit" component="p"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.desire}  </Typography> This is the desire that will create your reaction. </Typography>
-                <Typography sx={{fontSize:'15px',marginY:'0.5rem',display:'flex',flexDirection:'column'}} variant="inherit" component="p"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.reaction}  </Typography> This is the reaction that defines the habit. </Typography>
-                <Typography sx={{fontSize:'15px',display:'flex',flexDirection:'column'}} variant="inherit" component="p"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.reward}  </Typography> This is the reward that makes your habit pleasant. </Typography>
+                <Typography sx={{fontSize:'15px',display:'flex',flexDirection:'column'}} variant="inherit" component="h2"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.hint} </Typography> This is the hint that triggers you habit desire. </Typography>
+                <Typography sx={{fontSize:'15px',marginY:'0.5rem',display:'flex',flexDirection:'column'}} variant="inherit" component="h2"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.desire}  </Typography> This is the desire that will create your reaction. </Typography>
+                <Typography sx={{fontSize:'15px',marginY:'0.5rem',display:'flex',flexDirection:'column'}} variant="inherit" component="h2"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.reaction}  </Typography> This is the reaction that defines the habit. </Typography>
+                <Typography sx={{fontSize:'15px',display:'flex',flexDirection:'column'}} variant="inherit" component="h2"><Typography sx={{fontWeight:'bold',marginRight:'0.3rem', width:'full'}}>{habit.actionSystem.reward}  </Typography> This is the reward that makes your habit pleasant. </Typography>
             </div>
         </div>
     </div>

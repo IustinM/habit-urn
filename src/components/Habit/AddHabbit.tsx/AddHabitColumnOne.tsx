@@ -1,14 +1,11 @@
 import { Typography, TextField, FormControl, InputLabel, Select, MenuItem, Button, Box, Divider, SelectChangeEvent } from '@mui/material'
-import { DatePicker, TimeClock } from '@mui/x-date-pickers';
 import { v4 as uuid } from 'uuid';
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Timer } from '@mui/icons-material';
+import React, { ChangeEvent, SetStateAction, useEffect, useRef, useState } from 'react'
 import TargetType from './utils/TargetType';
-import dayjs from 'dayjs';
-
-interface basicHabitObject  {
-    [property:string]:string
-}
+import { basicHabitObject, DateRange as DateRangeType } from '../../utils/types';
+import {  DateRange } from 'react-date-range'
+import { checkNumber } from './utils/functions';
+import { habitCateogoryData } from './utils/data';
 
 interface Props{
     habitName:string,
@@ -19,51 +16,77 @@ interface Props{
     setHabitCategory:React.Dispatch<React.SetStateAction<string>>,
     habitTarget:basicHabitObject,
     setHabitTarget:React.Dispatch<React.SetStateAction<basicHabitObject>>,
-    habitTargetDate:Date,
-    setHabitTargetDate:React.Dispatch<React.SetStateAction<Date>>, 
     habitExpectedResults:basicHabitObject[],
     setHabitExpectedResults:React.Dispatch<React.SetStateAction<basicHabitObject[]>>,
+    selectionRange:DateRangeType,
+    setSelectionRange:React.Dispatch<SetStateAction<DateRangeType>>
 }
 
-const AddHabitColumnOne:React.FC<Props> = ({habitName,setHabitName,habitType,setHabitType,habitCategory,setHabitCategory,habitTarget,setHabitTarget,habitTargetDate,setHabitTargetDate,habitExpectedResults,setHabitExpectedResults}) => {
-    const habitCateogoryData = ['Health','Productivity and Personal Development','Social Relationships','Mental and Emotional Well-being','Financial','Daily Responsibilities','Other']
+const AddHabitColumnOne:React.FC<Props> = ({habitName,setHabitName,habitType,setHabitType,habitCategory,setHabitCategory,habitTarget,setHabitTarget,habitExpectedResults,setHabitExpectedResults,selectionRange,setSelectionRange}) => {
+    
+    //local state -->
     const [localHabitTargetResults,setLocalHabitTargetResults] = useState<string>('');
-    const [targetType,setTargetType] = useState<string>('Other');
+    const [showCalendar,setShowCalendar] = useState<boolean>(false)
+    //<-- local state 
 
-    const textFieldHandler = (e:React.SyntheticEvent,setState:React.Dispatch<React.SetStateAction<string>>):void =>{
-        const target = e.target as HTMLInputElement;
-        setState(target.value)
-    }
+    const boxRef = useRef<HTMLButtonElement>(null);
 
+    //handlers -->
+   
     const habitTargetResultsHandler = ():void =>{
         if(localHabitTargetResults.length > 0){
+            setLocalHabitTargetResults('')
             setHabitExpectedResults([...habitExpectedResults,{id:uuid(),text:localHabitTargetResults}])
         }
     }
 
     const setHabitTargetValue = (e:ChangeEvent<HTMLInputElement>) => {
-        setHabitTarget({...habitTarget,value:e.target.value});
+        if(e.target.value.length === 0){
+            setHabitTarget({...habitTarget,value:''})
+        }
+        if(checkNumber(e.target.value )|| e.target.value.length === 0 ){
+            if(parseFloat(e.target.value) > 0)
+            setHabitTarget({...habitTarget,value:parseFloat(e.target.value).toString()});   
+        }
     }
 
-    const changeDateHandler = (value:any) => {
-        setHabitTargetDate(new Date(value["$d"]));
-    }
+  
+
+    const handleClickOutside = (event:any) => {
+        if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+        }
+    };
+    //<-- handlers
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []); 
+
     
     useEffect(()=>{
-        setHabitTarget({...habitTarget,title:''})
+       
+        if(habitTarget.category  === 'Times'){
+            setHabitTarget({...habitTarget,title:'times'})
+            
+        }else{
+            setHabitTarget({...habitTarget,title:''})
+        }
     },[habitTarget.category])
 
-    
+  
     return (
     <div >
         <div style={{display:'flex',justifyContent:'space-between'}}>
-            
         <Typography variant='h6' sx={{marginBottom:'1rem'}} component='h4'>Basic habit details</Typography>
         <Box sx={{display:'flex',flexDirection:'column'}}></Box>
         </div>
         <div style={{display:'flex',justifyContent:'space-between'}}>
             <Box sx={{display:'flex',flexDirection:'column',width:'45%'}} >
-                    <TextField value={habitName || ''} id="habit-name" label="Habit name*" variant="outlined" onChange={(e:React.SyntheticEvent)=> textFieldHandler(e,setHabitName)} />
+                    <TextField value={habitName || ''} id="habit-name" label="Habit name*" variant="outlined" onChange={(e:ChangeEvent<HTMLInputElement>)=> setHabitName(e.target.value)} />
                     <div style={{display:'flex',marginTop:'2rem'}}>
                         <FormControl sx={{  minWidth: 180 }}>
                                 <InputLabel id="target-category-type">Target Category*</InputLabel>
@@ -90,11 +113,12 @@ const AddHabitColumnOne:React.FC<Props> = ({habitName,setHabitName,habitType,set
                             label="Habit type"
                             onChange={(event:SelectChangeEvent<string>)=>setHabitType(event.target.value)}
                             >
-                            <MenuItem value='positive'>Positive</MenuItem>
-                            <MenuItem value="neutral">Neutral</MenuItem>
-                            <MenuItem value='negative'>Negative</MenuItem>
+                            <MenuItem value='Positive'>Positive</MenuItem>
+                            <MenuItem value="Neutral">Neutral</MenuItem>
+                            <MenuItem value='Negative'>Negative</MenuItem>
                             </Select>
                         </FormControl>
+                        
                 </Box>
                 <Divider sx={{marginX:'2rem'}}/>
                 <Box sx={{display:'flex',flexDirection:'column',width:'45%'}}>
@@ -112,13 +136,18 @@ const AddHabitColumnOne:React.FC<Props> = ({habitName,setHabitName,habitType,set
                             )}
                         </Select>
                     </FormControl>
-                    <div style={{display:'flex', alignItems:'center'}}>  
+                    <Box sx={{display:'flex',justifyContent:"space-between",my:'2rem', alignItems:'center'}}>  
                         <TargetType  targetType={habitTarget.category}  title={habitTarget.title} setTitle={(value:string) =>setHabitTarget({...habitTarget,title:value})} />
-                        <DatePicker  value={dayjs(habitTargetDate) ? dayjs(habitTargetDate) : ''} onChange={changeDateHandler} sx={{marginY:'2rem',marginLeft:'1rem'}} label='Habit target date*'/>
-                    </div>
-                    <TextField onChange={(e:React.SyntheticEvent) => textFieldHandler(e,setLocalHabitTargetResults)} id="habit-expected-results" label="Habit expected results*" variant="outlined" />
+                        {/* <Calendar  value={dayjs(habitTargetDate) ? dayjs(habitTargetDate) : ''} onChange={changeDateHandler} sx={{marginY:'2rem',marginLeft:'1rem'}} label='Habit target date*'/> */}
+                    <Box ref={boxRef} onClick={() => setShowCalendar(!showCalendar)} sx={{ height:'56px',width:'60%',ml:'1rem',position:'relative',borderRadius:'0.3rem',display:'flex',alignItems:'center',paddingX:'0.7rem',border:'1px solid #6b6b6b7e'}}>
+                        <Typography component={'h2'} variant={'subtitle1'}>{selectionRange.startDate.toLocaleString().split(',')[0]}/{selectionRange.endDate.toLocaleString().split(',')[0]}</Typography>
+                        {showCalendar &&<Box onClick={(e:any)=> e.stopPropagation()}  sx={{position:'absolute',bgcolor:'#ffffff',bottom:'0%',border:'1px solid black',borderRadius:'0.5rem', overflow:'hidden',transform:'translateX(-50%) translateY(101%)',zIndex:'50'}}>
+                            <DateRange color='#ffffff' showDateDisplay={false} editableDateInputs={true}  moveRangeOnFirstSelection={false}  ranges={[selectionRange]} onChange={(value:any)=>{setSelectionRange({...value.selection})}}/>
+                        </Box>}
+                    </Box>
+                    </Box>
+                    <TextField value={localHabitTargetResults || ''} onChange={(e:ChangeEvent<HTMLInputElement>) =>setLocalHabitTargetResults(e.target.value)} id="habit-expected-results" label="Habit expected results*" variant="outlined" />
                     <Button  onClick={habitTargetResultsHandler} sx={{height:'56px', marginTop:'2rem',width:'150px',border:'2px solid'}} variant="outlined">Add Result</Button>
-                  
                 </Box>
         </div>
     </div>

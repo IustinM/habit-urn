@@ -6,12 +6,15 @@ import AddHabit from './components/Habit/AddHabbit.tsx/AddHabit';
 import CurrentHabit from './components/Habit/CurrentHabit/CurrentHabit';
 import Navigation from './components/Navigation/Navigation';
 import { RootState } from './store';
-
+import 'react-date-range/dist/styles.css'; 
+import 'react-date-range/dist/theme/default.css'; 
 const theme = createTheme()
 
 function App() {
-  const {viewAddHabitModal,editMode} = useSelector((state:RootState) => state.modal);
-  const habit = useSelector((state:RootState) => state.habit.habit)
+  const {viewAddHabitModal} = useSelector((state:RootState) => state.modal);
+  const showCurrentHabit = useSelector((state:RootState) => state.habit.showCurrentHabit)
+
+
   return (
     <>
       <ThemeProvider theme={theme}>
@@ -20,7 +23,7 @@ function App() {
         <Box sx={{display:'flex',borderColor:'#a5a5a546'}} >
           <Navigation/>
           <HabitsDashboard/>
-          {habit &&<CurrentHabit/>}
+          {showCurrentHabit ?<CurrentHabit/> :''}
         </Box>
       </ThemeProvider>
     </>

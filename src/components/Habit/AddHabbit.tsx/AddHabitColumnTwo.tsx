@@ -1,8 +1,6 @@
-import { InfoTwoTone } from '@mui/icons-material'
-import { Typography, TextField, Button, FormControl, InputLabel, MenuItem, Select, Box, SelectChangeEvent } from '@mui/material'
-import React, { ChangeEvent, useState } from 'react';
+import { Typography, TextField,  FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material'
+import React, { ChangeEvent } from 'react';
 import SubTitle from './utils/Subtitle';
-
 
 interface basicHabitObject  {
     [property:string]:string
@@ -18,29 +16,21 @@ interface Props{
 
 const AddHabitColumnTwo:React.FC<Props> = ({identity,setIdentity,actionSystem,setActionSystem}) => {
 
-    console.log(actionSystem)
+    const setSelectHandler = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement>,state:basicHabitObject,setState:React.Dispatch<React.SetStateAction<basicHabitObject>>,property:keyof basicHabitObject):void =>{
+        setState({
+            ...state,
+            [property]:e.target.value   
+        });
+    }
 
-    const identityChangeHandler = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement>,property:keyof basicHabitObject):void =>{
-        setIdentity({
-            ...identity,
-            [property]:e.target.value   
-        });
-    }
-    const systemActionChangeHandler = (e:ChangeEvent<HTMLInputElement >,property:keyof basicHabitObject):void =>{
-        setActionSystem({
-            ...actionSystem,
-            [property]:e.target.value   
-        });
-    }
-    
   return (
     <div >
         <Typography variant='h6' sx={{marginBottom:'1rem'}} component='h4'>Rules for changing the habit</Typography>
-                <SubTitle text='Add an identity that this habit contributes to.' blue bold/>
-        <div style={{display:'flex',flexDirection:'column',width:'full'}}>      
-            <div style={{marginTop:'1rem' ,marginBottom:'2rem',display:'flex',justifyContent:'space-between'}}>
-                    <TextField onChange={(e:ChangeEvent<HTMLInputElement>) => identityChangeHandler(e,'name')} sx={{width:'45%'}} id="habit-expected-identity" label="Identity" variant="outlined" />  
-                    <div style={{marginLeft:'2rem',marginRight:'2rem'}}></div>
+                <SubTitle text='Add an identity that this habit contributes to.' popupText='The identity shaped by our habits is a fascinating concept that reflects how repetitive actions and daily choices contribute to defining who we are. Essentially, the habits we cultivate and incorporate into our daily routine become an integral part of our personal identity. This is because, over time, habits transform from actions we consciously perform into characteristic traits that define us. A clear example of this is the association between the act of smoking and being labeled a "smoker." When someone smokes regularly, this habit not only impacts their physical health but also becomes a significant marker of their identity.' blue bold/>
+        <Box sx={{display:'flex',flexDirection:'column',width:'full'}}>      
+            <Box sx={{marginTop:'1rem' ,marginBottom:'2rem',display:'flex',justifyContent:'space-between'}}>
+                    <TextField value={identity.name || ''} onChange={(e:ChangeEvent<HTMLInputElement>) => setSelectHandler(e,identity,setIdentity,'name')} sx={{width:'45%'}} id="habit-expected-identity" label="Identity" variant="outlined" />  
+                    <Box sx={{marginLeft:'2rem',marginRight:'2rem'}}></Box>
                         <FormControl sx={{ width:'45%'}}>
                             <InputLabel id="identity-level-select-label">Identity Level</InputLabel>
                             <Select
@@ -48,34 +38,34 @@ const AddHabitColumnTwo:React.FC<Props> = ({identity,setIdentity,actionSystem,se
                             id="identiry-level-select"
                             value={identity.type}
                             label="Identity Level"
-                            onChange={(e:any) => identityChangeHandler(e,'type')} 
+                            onChange={(e:any) => setSelectHandler(e,identity,setIdentity,'type')} 
                             >
-                                <MenuItem value={'beginner'}>Beginner</MenuItem>
-                                <MenuItem value={'amateur'}>Amateur</MenuItem>
-                                <MenuItem value={'exper'}>Expert</MenuItem>
+                                <MenuItem value={'Beginner'}>Beginner</MenuItem>
+                                <MenuItem value={'Amateur'}>Amateur</MenuItem>
+                                <MenuItem value={'Expert'}>Expert</MenuItem>
                             </Select>
                         </FormControl>
-                    </div>
-                <SubTitle  text='Create an action system' blue bold/>
+                    </Box>
+                <SubTitle popupText='An action system indicates all the steps of an habit.'  text='Create an action system' blue bold/>
             <Box>
-                <div style={{display:'flex',justifyContent:"space-between"}}>
+                <Box sx={{display:'flex',justifyContent:"space-between"}}>
                     <Box sx={{width:'45%',display:'flex',flexDirection:'column'}}>
-                        <SubTitle text='1. Add a hint of habit' />
-                        <TextField value={actionSystem.hint || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>systemActionChangeHandler(e,'hint')} sx={{marginBottom:'1rem'}} id="habit-step-action" label="Add hint" variant="outlined" />
-                        <SubTitle text='3. Add a reaction generated by the desire'/>
-                        <TextField value={actionSystem.reaction || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>systemActionChangeHandler(e,'reaction')} sx={{marginBottom:'1rem'}} id="habit-step-action" label="Add reaction" variant="outlined" />
+                        <SubTitle popupText='A habit is a regularly repeated action by a person, often performed unconsciously. Hints of habits can vary depending on the nature of the habit itself. For example, if you see someone smoking, you will want to smoke too.' text='1. Add a hint of habit' />
+                        <TextField value={actionSystem.hint || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSelectHandler(e,actionSystem,setActionSystem,'hint')} sx={{marginBottom:'1rem'}} id="habit-step-action" label="Add hint" variant="outlined" />
+                        <SubTitle popupText='The reaction is the 3rd step towards fulfilling the habit. It is the action stage of the habit, for example if I see someone smoking, I will react by smoking too.' text='3. Add a reaction generated by the desire'/>
+                        <TextField value={actionSystem.reaction || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSelectHandler(e,actionSystem,setActionSystem,'reaction')} sx={{marginBottom:'1rem'}} id="habit-step-action" label="Add reaction" variant="outlined" />
                         {/* <Button sx={{height:'56px', marginTop:'2rem',border:'2px solid',width:'150px'}} variant="outlined">Add system</Button> */}
                     </Box>
                     
                     <Box sx={{width:'45%',display:'flex',flexDirection:'column'}}>
-                        <SubTitle  text='2. Add a desire created when you observe the hint' />
-                        <TextField value={actionSystem.desire || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>systemActionChangeHandler(e,'desire')} id="habit-step-action" label="Add desire" variant="outlined" />
-                        <SubTitle text='4. Add the reward received after the reaction'  />
-                        <TextField value={actionSystem.reward || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>systemActionChangeHandler(e,'reward')} id="habit-step-action" label="Add reward" variant="outlined" />
+                        <SubTitle  popupText='Desire is created by the hint of habit. For example, if you see someone smoking, you will want to smoke too.' text='2. Add a desire created when you observe the hint' />
+                        <TextField value={actionSystem.desire || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSelectHandler(e,actionSystem,setActionSystem,'desire')} id="habit-step-action" label="Add desire" variant="outlined" />
+                        <SubTitle text='4. Add the reward received after the reaction' popupText={'Reward is the stage that maintains the habit. For example, after smoking I will be rewarded by the loss of stress and by the satisfaction created by this habit.'}  />
+                        <TextField value={actionSystem.reward || ''} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSelectHandler(e,actionSystem,setActionSystem,'reward')} id="habit-step-action" label="Add reward" variant="outlined" />
                     </Box>
-                </div>
+                </Box>
             </Box>
-        </div>
+        </Box>
     </div>
   )
 }

@@ -1,26 +1,28 @@
-import { Add, Delete, Edit,  MoreVert,} from '@mui/icons-material'
+import { Add, Delete, Done, Edit, HourglassTop,  MoreVert,} from '@mui/icons-material'
 import { Box, Button, CircularProgress, Divider, IconButton, Popover, Toolbar, Typography } from '@mui/material'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetHabits, setHabit,  } from '../../Slices/HabitSlice'
+import { resetHabits, setHabit, setShowCurrentHabit } from '../../Slices/HabitSlice'
 import { RootState } from '../../store'
 import IncreaseHabit from './utils/IncreaseHabit'
 import React from 'react';
-import { setEditMode } from '../../Slices/ModalSlice';
 import { returnBackground, returnColor, returnIcon } from './utils/functions';
 import DeleteModal from './utils/DeleteModal';
 import EditHabit from '../Habit/EditHabit/EditHabit';
-
+import { getMonth, getYear } from 'date-fns';
+import { Habit as habitType } from '../utils/types';
 
 interface Props{
-    habit:any
+    habit:habitType
 }
 
 const Habit:React.FC<Props> = ({habit}) => {
     
+
+    console.log(habit)
     //dispatch and selectors -->
-    const habits = useSelector((state:RootState)=>state.habit.habits);
+    const {habits,currentDate} = useSelector((state:RootState)=>state.habit);
     const dispatch = useDispatch();
     //<-- dispatch and selectors 
 
@@ -31,6 +33,7 @@ const Habit:React.FC<Props> = ({habit}) => {
     const [viewDelete,setViewDelete] = useState<boolean>(false)
     const [showAdd,setShowAdd] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [completed,setCompleted] = useState<boolean>(false);
     //<-- local state
   
     //popover functions -->
@@ -50,7 +53,7 @@ const Habit:React.FC<Props> = ({habit}) => {
     //handlers -->
     //this handler shows the input that increase the habit value
     const showAddHandler = (e:any) => {
-        e.stopPropagation();
+        // e.stopPropagation();
         if(!showAdd){
             setShowAdd(true);
         }else{
@@ -73,6 +76,7 @@ const Habit:React.FC<Props> = ({habit}) => {
         e.stopPropagation();
         handleClose()
         setViewDelete(true);
+        // dispatch(setShowCurrentHabit(false))
     }
 
     //this handler submits the new increased value
@@ -80,40 +84,90 @@ const Habit:React.FC<Props> = ({habit}) => {
      
         const increaseValue = increasedTarget;
         const currentValue = parseInt(habit.target.currentValue);
-        const totalValue = parseInt(habit.target.value)
+        const totalValue = parseInt(habit.target.value);
+
         if(increaseValue + currentValue > totalValue){
             setError(true);
         }else{
             setIncreasedTarget(0);
             const localHabits = [...habits];
             let localHabit = localHabits.find(localHabit => localHabit.id === habit.id);
-            const newHabit = {...localHabit,target:{...localHabit.target,currentValue:`${increaseValue + currentValue}`}};
-            const newHabits = localHabits.map((filterHabit:any) => filterHabit.id === newHabit.id ? newHabit : filterHabit);
+            if(increaseValue + currentValue === parseFloat(localHabit!.target.value)){
+                const newHabit = {...localHabit,currentDate:new Date(getYear(new Date(habit.currentDate)),getMonth(new Date(habit.currentDate)),(new Date(habit.currentDate).getDate() + 1)).toDateString(),habitRange:{...localHabit!.habitRange,current:localHabit!.habitRange.current +1 <= localHabit!.habitRange.total ? localHabit!.habitRange.current +1 : localHabit!.habitRange.current},target:{...localHabit!.target,currentValue:`0`}};
+                const newHabits = localHabits.map((filterHabit:any) => filterHabit.id === newHabit.id ? newHabit : filterHabit);
+                dispatch(resetHabits(newHabits));   
+            }else{
+                
+                const newHabit = {...localHabit,target:{...localHabit!.target,currentValue:`${increaseValue + currentValue}`}};
+                const newHabits = localHabits.map((filterHabit:any) => filterHabit.id === newHabit.id ? newHabit : filterHabit);
+                dispatch(resetHabits(newHabits)); 
+            }
             setError(false)
-            dispatch(resetHabits(newHabits));
         }
-        
     }
-    //<-- handlers
-    
+
+    useEffect(() => {
+        if(habit.habitRange.current === habit.habitRange.total){
+            setCompleted(true);
+        }
+    }, [habit,habits,currentDate])
+    useEffect(() => {
+        dispatch(setHabit(habit));
+    }, [habits,currentDate])
+    //<-- handlers    
+    // useEffect(() =>{`
+
+    // },[habits])
+    console.log(habit.name,habit.currentDate);
+    // console.log((new Date(habit.habitDate.startDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(currentDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(habit.habitDate.startDate)).getTime() <= (new Date(currentDate)).getTime())
 
   return (
-    <Box onClick={()=> dispatch(setHabit(habit))} sx={{ display:'flex',cursor:'pointer',justifyContent:'space-between','&:hover':{background:'#b5b5b523'},transition:'0.2s all',paddingTop:'0.5rem',color:'#606060',paddingBottom:'0.5rem',alignItems:'center',borderBottom:'1px solid #a5a5a546'}}>
+    <Box onClick={()=>{dispatch(setHabit(habit));  dispatch(setShowCurrentHabit(true))}} sx={{ display:'flex',cursor:'pointer',justifyContent:'space-between','&:hover':{background:completed ? 'white' :'#b5b5b523'},transition:'0.2s all',paddingTop:'0.5rem',color:'#606060',paddingBottom:'0.5rem',alignItems:'center',borderBottom:'1px solid #a5a5a546'}}>
         {viewDelete && <DeleteModal setViewDelete={setViewDelete} habit={habit}/>}
         {editMode && <EditHabit habit={habit} setEditMode={setEditMode}/>}
         <Toolbar>
             <IconButton sx={{display:'flex',color:returnColor(habit.category),marginRight:'0.5rem',justifyContent:'center',position:'relative' ,'&:hover':{backgroundColor:returnBackground(habit.category)},backgroundColor:returnBackground(habit.category),alignItems:'centers', width:'45px', height:'45px'}}>
-                <CircularProgress sx={{position:'absolute',top:0,right:0,minWidth:'45px',color:returnColor(habit.category), minHeight:'45px'}} variant="determinate" value={(habit.target.currentValue * 100)/habit.target.value} />
+                { new Date(habit.habitDate.startDate).getTime() < new Date(habit.currentDate).getTime() && new Date(currentDate).getTime() < new Date(habit.currentDate).getTime() && new Date(habit.habitDate.startDate).getTime() <= new Date(currentDate).getTime()  ?
+                <CircularProgress sx={{position:'absolute',top:0,right:0,minWidth:'45px',color:returnColor(habit.category), minHeight:'45px'}} variant="determinate" value={100} />
+                :
+                <CircularProgress sx={{position:'absolute',top:0,right:0,minWidth:'45px',color:returnColor(habit.category), transition:'0.2s all',minHeight:'45px'}} variant="determinate" value={(parseFloat(habit.target.currentValue) * 100)/parseFloat(habit.target.value)} />}
                 {returnIcon(habit.category)}
             </IconButton>
             <Box >
-                <Typography component={'p'} variant={'caption'}>{habit.name}</Typography>
-                <Typography component={'p'} variant={'caption'}>{habit.target.currentValue} / {habit.target.value} {habit.target.title}</Typography>
+                {
+                (new Date(habit.habitDate.startDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(currentDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(habit.habitDate.startDate)).getTime() <= (new Date(currentDate)).getTime()
+                 ?
+                <>
+                <Typography component={'h2'} variant={'caption'}>{habit.name}</Typography>
+                <Typography component={'h2'} variant={'caption'}>{habit.target.value} / {habit.target.value}  {habit.target.title}</Typography>
+                </>
+                :<>
+                                <Typography component={'h2'} variant={'caption'}>{habit.name}</Typography>
+                <Typography component={'h2'} variant={'caption'}>{habit.target.currentValue} / {habit.target.value} {habit.target.title}</Typography>
+                </>   
+                }
+                
             </Box>
         </Toolbar>
         <Box sx={{display:'flex',alignItems:'center',height:'50px'}}>
-            {showAdd &&<IncreaseHabit  value={increasedTarget} error={error} setValue={setIncreasedTarget}/>}
-            <Button variant='outlined' onClick={(e:any) =>showAddHandler(e)} sx={{marginRight:'1rem',marginLeft:'1rem',color:'#606060',minHeight:'40px', border:'1px solid #a5a5a546'}} startIcon={<Add/>}>Add</Button>
+            {
+                new Date(habit.currentDate).getTime() === new Date(currentDate).getTime() ?
+                <>
+                {showAdd &&<IncreaseHabit  value={increasedTarget} error={error} setValue={setIncreasedTarget}/>}
+                <Button variant='outlined' onClick={(e:any) =>showAddHandler(e)} sx={{marginRight:'1rem',marginLeft:'1rem',color:'#606060',minHeight:'40px', border:'1px solid #a5a5a546'}} startIcon={<Add/>}>Add</Button>
+                </>
+                :
+                new Date(habit.habitDate.startDate).getTime() < new Date(habit.currentDate).getTime() && new Date(currentDate).getTime() < new Date(habit.currentDate).getTime() && new Date(habit.habitDate.startDate).getTime() <= new Date(currentDate).getTime() ?
+                <Typography  sx={{marginRight:'1rem', border:'1px solid #00973a',color:'#00973a', height:'40px', borderRadius:'0.3rem',px:'0.5rem', display:'flex', alignItems:'center', justifyContent:'center'}} variant='subtitle1' component='h4'>
+                    <Done/>
+                    Completed
+                </Typography>
+                :
+                <Typography  sx={{marginRight:'1rem', border:'1px solid #973f00',color:'#973f00', height:'40px', borderRadius:'0.3rem',px:'0.5rem', display:'flex', alignItems:'center', justifyContent:'center'}} variant='subtitle1' component='h4'>
+                    <HourglassTop/>
+                     Waiting for progress
+                </Typography>
+            }
             <IconButton onClick={(e:any) =>handleClick(e)} sx={{color:'#606060',marginRight:'1rem', border:'1px solid #a5a5a546', height:'40px' ,width:'40px' ,borderRadius:'0.3rem'}}>
                 <MoreVert/>
             </IconButton>
