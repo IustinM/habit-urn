@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/habiturn/static/css/main.68d13d4d.css",
+    "main.js": "/habiturn/static/js/main.39f5f88d.js",
+    "static/media/logo.png": "/habiturn/static/media/logo.896b002274d8312eb266.png",
+    "index.html": "/habiturn/index.html",
+    "main.68d13d4d.css.map": "/habiturn/static/css/main.68d13d4d.css.map",
+    "main.39f5f88d.js.map": "/habiturn/static/js/main.39f5f88d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.68d13d4d.css",
+    "static/js/main.39f5f88d.js"
+  ]
+}
