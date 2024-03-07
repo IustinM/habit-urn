@@ -31,7 +31,6 @@ const EditHabit:React.FC<Props> = ({habit,setEditMode}) => {
     const [targetError,setTargetError] = useState<boolean>(false);
     const [habitCategory,setHabitCategory] = useState<string>('');
     const [habitTarget,setHabitTarget] = useState<basicHabitObject>({category:'',title:'',value:'',currentValue:'0'});
-    const [initialTarget,setInitialTarget] = useState<basicHabitObject>({category:'',title:'',value:'',currentValue:'0'});
     const [habitExpectedResults,setHabitExpectedResults] = useState<basicHabitObject[]>([]);
     const [identity,setIdentity] = useState<basicHabitObject>({name:'',type:''});
     const [habitRange,setHabitRange] = useState<habitRange>({current:0,total:0})
@@ -90,23 +89,21 @@ const EditHabit:React.FC<Props> = ({habit,setEditMode}) => {
             positiveMeasure:positiveMeasure,
             place:habitPlace
         }
-        if(habitCopy.target.value < habitCopy.target.currentValue || habitCopy.target.value !== initialTarget.value){
-            setTargetError(true);
-        }else{
-            const newHabits = habitsCopy.map((habitLocal:Habit) => habitLocal.id === habitCopy.id ? habitCopy : habitLocal);
-            dispatch(setHabit({...habitCopy}));
-            dispatch(editHabitsState([...newHabits]))
-            setEditMode(false);
-            // setTargetError(false);
-            dispatch(setShowCurrentHabit(false))
-        }
+        const newHabits = habitsCopy.map((habitLocal:Habit) => habitLocal.id === habitCopy.id ? habitCopy : habitLocal);
+        dispatch(setHabit({...habitCopy}));
+        dispatch(editHabitsState([...newHabits]))
+        setEditMode(false);
+        // setTargetError(false);
+        dispatch(setShowCurrentHabit(false))
+        
         
     }
 
     const editHabit = () => {
-         if(selectionRange.startDate.getTime() !== initialRange.startDate.getTime() || selectionRange.endDate.getTime() !== initialRange.endDate.getTime()){
+         if((selectionRange.startDate.getTime() !== initialRange.startDate.getTime() || selectionRange.endDate.getTime() !== initialRange.endDate.getTime())
+            || habitTarget.value < habit.target.currentValue || habit.target.value !== habitTarget.value
+         ){
             setTargetError(true);
-            
         }else{
             editHabitHandler();
         }
@@ -126,7 +123,6 @@ const EditHabit:React.FC<Props> = ({habit,setEditMode}) => {
         setHabitTarget({...habitTarget,currentValue:'0'})
         setHabitRange({ total:((getDate(new Date(selectionRange.endDate)) - getDate(new Date(selectionRange.startDate)) ))+1,current:0});
         setInitialRange({...selectionRange})
-        setInitialTarget(habitTarget);
         setCurrentDate(selectionRange.startDate);
         editHabitHandler();
         // setTargetError(false);
@@ -139,7 +135,6 @@ const EditHabit:React.FC<Props> = ({habit,setEditMode}) => {
         setHabitType(habit.type);
         setHabitCategory(habit.category)
         setHabitTarget({...habit.target});
-        setInitialTarget({...habit.target})
         setHabitExpectedResults([...habit.expectedResults]);
         setCurrentDate(new Date(habit.currentDate))
         setIdentity(habit.identity);

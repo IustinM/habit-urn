@@ -75,14 +75,64 @@ const AddHabit = () => {
 
   
     useEffect(() =>{
-        if(habitName.length > 0 && habitType.length > 0 && habitCategory.length > 0 && habitExpectedResults.length > 0){
-            // setDisableButton(false)
-       
-        }else{
-            
-            // setDisableButton(true)
+        switch(habitType){
+            case 'Positive':{
+                if(habitPlace.length > 0 &&positiveMeasure.habitResult >0){
+                    if(habitName.length > 0 
+                        && habitType.length > 0 
+                        && habitCategory.length > 0 
+                        && habitExpectedResults.length > 0 
+                        && habitTarget.value.length > 0){
+                            setDisableButton(false);
+                            break;
+                            
+                        }else{
+                            setDisableButton(true);
+                            break;
+                        }
+                    }else{
+                    setDisableButton(true);
+                    break;
+                }
+            }
+            case 'Negative':{
+                if(actionSystem.hint.length > 0 && actionSystem.desire.length> 0 && actionSystem.reaction.length > 0 && actionSystem.reward.length > 0 && identity.name.length > 0 && identity.type.length > 0){
+                    if(habitName.length > 0 
+                        && habitType.length > 0 
+                        && habitCategory.length > 0 
+                        && habitExpectedResults.length > 0 
+                        && habitTarget.value.length > 0){
+                            setDisableButton(false);
+                            break;
+                            
+                        }else{
+                            setDisableButton(true);
+                            break;
+                        }
+                    }else{
+                    setDisableButton(true);
+                    break;
+                }
+            }
+            default:{
+                if(habitName.length > 0 
+                    && habitType.length > 0 
+                    && habitCategory.length > 0 
+                    && habitExpectedResults.length > 0 
+                    && habitTarget.value.length > 0){
+                        setDisableButton(false);
+                        break;
+                        
+                    }else{
+                        setDisableButton(true);
+                        break;
+                    }
+            }
         }
-    },[habitName,habitType,habitCategory,habitType,habitExpectedResults])
+       
+
+       
+    },[habitName,habitType,habitCategory,,habitTarget,habitPlace,habitType,habitExpectedResults,positiveMeasure,actionSystem,identity]);
     
   return (
     <div style={{position:'fixed',top:0,backdropFilter:'blur(3px)',color:'#606060',background:'rgba(52, 58, 65, 0.600000)',width:'100%',minHeight:'100vh',zIndex:'50',display:'flex',alignItems:'center',justifyContent:'center'}}>

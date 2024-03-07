@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { Habit } from '../components/utils/types'
+import { defaultHabits } from '../components/Habit/AddHabbit.tsx/utils/data'
 
 
 interface HabitState {
@@ -12,7 +13,7 @@ interface HabitState {
 
 // Define the initial state using that type
 const initialState: HabitState = {
-  habits: [],
+  habits: [...defaultHabits],
   habit:   {
     id:'',
     name:'',

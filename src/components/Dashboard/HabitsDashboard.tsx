@@ -57,13 +57,13 @@ const HabitsDashboard = () => {
     <Box  sx={{width:'54%', minHeight:'100vh',minWidth:'700px',borderRight:'1px solid #a5a5a546'}}>
         <Toolbar sx={{borderBottom:'1px solid #a5a5a546',flex:'row',justifyContent:'space-between'}}>
             <Typography component='h2' variant='h6'>Habits</Typography>
-            <Box onClick={(e:any)=>{ e.stopPropagation(); console.log('event')}}   sx={{padding:0,display:'flex'}}>
+            <Box onClick={(e:any)=>{ e.stopPropagation(); }}   sx={{padding:0,display:'flex'}}>
                 <Box ref={boxRef} onClick={() => setShowCalendar(!showCalendar)} sx={{marginRight:'1rem',borderRadius:'0.3rem',cursor:'pointer',px:'0.5rem',color:'#277cf4',justifyContent:'space-between',position:'relative',width:'125px',height:'40px',fontSize:'0.8rem', display:'flex',alignItems:'center',border:'1px solid #277cf4'}} >
                   <CalendarMonth/>
                   <Box sx={{display:'flex'}}>
                     <span style={{marginLeft:'0.5rem', marginRight:'0.2rem'}}>{getDate(new Date(currentDate))} </span>
                     <span >{monthsOfYear[getMonth(new Date(currentDate))]}</span>
-                    {showCalendar &&<Box onClick={(e:any)=>{ e.stopPropagation(); console.log('event2')}}  sx={{position:'absolute',bgcolor:'#ffffff',bottom:'0%',border:'1px solid black',borderRadius:'0.5rem', overflow:'hidden',left:'50%',transform:'translateX(-50%) translateY(101%)',zIndex:'70'}}>
+                    {showCalendar &&<Box onClick={(e:any)=>{ e.stopPropagation();}}  sx={{position:'absolute',bgcolor:'#ffffff',bottom:'0%',border:'1px solid black',borderRadius:'0.5rem', overflow:'hidden',left:'50%',transform:'translateX(-50%) translateY(101%)',zIndex:'70'}}>
                         <Calendar date={new Date(currentDate)} showDateDisplay={false} editableDateInputs={true}  onChange={(value:any)=>{dispatch(setCurrentDate(value.toDateString()))}}/>
                       </Box>}
                   </Box>

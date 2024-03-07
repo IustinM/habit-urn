@@ -1,9 +1,11 @@
-import { DirectionsRun, LocalLibrary, Handshake, SelfImprovement, CreditCard, Assignment, QuestionMark } from "@mui/icons-material"
+import { DirectionsRun, LocalLibrary, Handshake, SelfImprovement, CreditCard, Assignment, QuestionMark, Favorite } from "@mui/icons-material"
 
 export const returnBackground = (category:string) =>{
     switch(category){
         case "health":
             return '#ff99998c'
+        case "sport":
+            return '#00989b64'
         case 'productivity_and_personal_development':
             return '#f5619c67'
         case 'social_relationships':
@@ -22,6 +24,8 @@ export const returnColor = (category:string) =>{
     switch(category){
         case "health":
             return '#ea2b2b'
+            case "sport":
+            return '#00989b'
         case 'productivity_and_personal_development':
             return '#f50c69'
         case 'social_relationships':
@@ -39,6 +43,8 @@ export const returnColor = (category:string) =>{
 export   const returnIcon = (category:string) =>{
     switch(category){
         case "health":
+            return <Favorite/>
+        case "sport":
             return <DirectionsRun/>
         case 'productivity_and_personal_development':
             return <LocalLibrary/>

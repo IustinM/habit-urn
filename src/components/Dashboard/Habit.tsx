@@ -19,8 +19,6 @@ interface Props{
 
 const Habit:React.FC<Props> = ({habit}) => {
     
-
-    console.log(habit)
     //dispatch and selectors -->
     const {habits,currentDate} = useSelector((state:RootState)=>state.habit);
     const dispatch = useDispatch();
@@ -110,16 +108,12 @@ const Habit:React.FC<Props> = ({habit}) => {
         if(habit.habitRange.current === habit.habitRange.total){
             setCompleted(true);
         }
-    }, [habit,habits,currentDate])
+    }, [habit,habits,currentDate]);
+
     useEffect(() => {
         dispatch(setHabit(habit));
     }, [habits,currentDate])
-    //<-- handlers    
-    // useEffect(() =>{`
-
-    // },[habits])
-    console.log(habit.name,habit.currentDate);
-    // console.log((new Date(habit.habitDate.startDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(currentDate)).getTime() < (new Date(habit.currentDate)).getTime() && (new Date(habit.habitDate.startDate)).getTime() <= (new Date(currentDate)).getTime())
+    
 
   return (
     <Box onClick={()=>{dispatch(setHabit(habit));  dispatch(setShowCurrentHabit(true))}} sx={{ display:'flex',cursor:'pointer',justifyContent:'space-between','&:hover':{background:completed ? 'white' :'#b5b5b523'},transition:'0.2s all',paddingTop:'0.5rem',color:'#606060',paddingBottom:'0.5rem',alignItems:'center',borderBottom:'1px solid #a5a5a546'}}>
